@@ -1,3 +1,4 @@
+from http.client import BAD_REQUEST
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -5,6 +6,7 @@ from functools import wraps
 
 from .models import Todo
 from .serializers import TodoSerializer
+from .exceptions import ValidationError
 # Create your views here.
 
 # Exception Handler Wrapper
@@ -21,6 +23,15 @@ def apiHandler(func):
                     "errors": list(e.args),
                     "exception_origin": e.__class__.__name__,
                 }, status=404)
+            
+        except ValidationError as e:
+            return Response({
+                    "Message": "Validation Error", 
+                    "description": str(e.description),
+                    "status": e.statusMessage,
+                    "errors": list(e.args),
+                    "exception_origin": e.__class__.__name__,
+                }, status=e.statusCode)
             
         except Exception as e:
             return Response({
@@ -40,10 +51,10 @@ def apiOverview(request):
     routes = [
         'GET /api',
         'GET /api/todos',
-        'POST /api/todos',
+        'POST /api/todos/create',
         'GET /api/todos/:id',
-        'PUT /api/todos/:id',
-        'DELETE /api/todos/:id',
+        'PUT /api/todos/:id/update',
+        'DELETE /api/todos/:id/delete',
     ]
     
     data = {
@@ -62,21 +73,65 @@ def getAllTodos(request):
         "todos": todos.data
     }
     
-    return Response(data)
+    return Response(data, status=200)
 
 @api_view(['GET'])
 @apiHandler
 def getTodoById(request, pk):
     todo = TodoSerializer(Todo.objects.get(id=pk))
+    
     data = {
         "description": "Get a Todo By Id",
+        "todo": todo.data,
+    }
+    
+    return Response(data, status=200)
+
+@api_view(['POST'])
+@apiHandler
+def createTodo(request):
+    todo = TodoSerializer(data=request.data)
+
+    if not todo.is_valid():
+        raise ValidationError(todo.errors)
+
+    todo.save()
+    data = {
+        "description": "Create a Todo",
         "todo": todo.data
     }
     
-    return Response(data)
+    return Response(data, status=201) 
 
-        
+@api_view(['PUT'])
+@apiHandler
+def updateTodo(request, pk):
+    
+    todo = TodoSerializer(Todo.objects.get(id=pk), data=request.data)
+    if not todo.is_valid():
+        raise BAD_REQUEST(todo.errors)
 
+    todo.save()
+    data = {
+        "description": "Update a Todo By Id",
+        "todo": todo.data
+    }
+    
+    return Response(data, status=200)
 
-
+@api_view(['DELETE'])
+@apiHandler
+def deleteTodo(request, pk):
+    todo = Todo.objects.get(id=pk)
+    serializedTodo = TodoSerializer(todo)
+    todo.delete()
+    
+    serializedTodo = serializedTodo.data.copy()
+    serializedTodo.pop('id', None)
+    data = {
+        "description": "Delete a Todo By Id",
+        "todo": serializedTodo
+    }
+    
+    return Response(data, status=200)
 
