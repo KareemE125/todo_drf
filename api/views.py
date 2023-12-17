@@ -7,6 +7,7 @@ from .models import Todo
 from .serializers import TodoSerializer
 # Create your views here.
 
+# Exception Handler Wrapper
 def apiHandler(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
@@ -34,6 +35,7 @@ def apiHandler(func):
     
         
 @api_view(['GET'])
+@apiHandler
 def apiOverview(request):
     routes = [
         'GET /api',
@@ -52,6 +54,7 @@ def apiOverview(request):
     return Response(data)
 
 @api_view(['GET'])
+@apiHandler
 def getAllTodos(request):
     todos = TodoSerializer(Todo.objects.all(), many = True)
     data ={
