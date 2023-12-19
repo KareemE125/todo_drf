@@ -6,7 +6,9 @@ from rest_framework.exceptions import AuthenticationFailed
 from exceptionHandling.apiHandler import apiHandler
 from exceptionHandling.validationExecption import ValidationException
 from .serializers import UserSerializer
-from.models import User
+from .models import User
+from .jwtHelpers import JWTHelper
+
 # Create your views here.
 
 @api_view(['POST'])
@@ -36,11 +38,12 @@ def login(request):
     if not user.check_password(password):
         raise AuthenticationFailed("Wrong Password")
     
-    user = UserSerializer(user)
-    
+    serializedUser = UserSerializer(user)
+
     data = {
         "description": "Login a User",
-        "user": user.data
+        "token": JWTHelper.encode(user.getJson()),
+        "user": serializedUser.data
     }
     
     return Response(data, status=200)

@@ -128,3 +128,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'authentication.User'
+
+# Env variables
+JWT_SECRET_KEY="5ecr3tK3y"
+JWT_ALGORITHM="HS256"

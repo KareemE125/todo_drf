@@ -34,4 +34,11 @@ class User(AbstractUser):
     
     REQUIRED_FIELDS = ['name']
     
+    def getJson(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email
+        }
+    
     

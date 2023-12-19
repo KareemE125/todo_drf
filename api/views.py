@@ -1,3 +1,4 @@
+from functools import wraps
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -5,10 +6,19 @@ from .models import Todo
 from .serializers import TodoSerializer
 from exceptionHandling.validationExecption import ValidationException
 from exceptionHandling.apiHandler import apiHandler
+from authentication.jwtHelpers import JWTHelper
+
 # Create your views here.
 
 # Exception Handler Wrapper
 
+
+def authMiddeware(func):
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        token = JWTHelper.decode(request.headers['Authorization'])
+        return func(request, *args, **kwargs)
+    return wrapper
     
         
 @api_view(['GET'])
@@ -32,7 +42,9 @@ def apiOverview(request):
 
 @api_view(['GET'])
 @apiHandler
+@authMiddeware
 def getAllTodos(request):
+   
     todos = TodoSerializer(Todo.objects.all(), many = True)
     data ={
         "description": "Get All Todos",
@@ -43,6 +55,7 @@ def getAllTodos(request):
 
 @api_view(['GET'])
 @apiHandler
+@authMiddeware
 def getTodoById(request, pk):
     todo = TodoSerializer(Todo.objects.get(id=pk))
     
@@ -55,6 +68,7 @@ def getTodoById(request, pk):
 
 @api_view(['POST'])
 @apiHandler
+@authMiddeware
 def createTodo(request):
     todo = TodoSerializer(data=request.data)
 
@@ -71,6 +85,7 @@ def createTodo(request):
 
 @api_view(['PUT'])
 @apiHandler
+@authMiddeware
 def updateTodo(request, pk):
     
     todo = TodoSerializer(Todo.objects.get(id=pk), data=request.data)
@@ -87,6 +102,7 @@ def updateTodo(request, pk):
 
 @api_view(['DELETE'])
 @apiHandler
+@authMiddeware
 def deleteTodo(request, pk):
     todo = Todo.objects.get(id=pk)
     serializedTodo = TodoSerializer(todo)
