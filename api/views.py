@@ -13,7 +13,7 @@ from authentication.jwtHelpers import JWTHelper
 # Exception Handler Wrapper
 
 
-def authMiddeware(func):
+def tokenAuthMiddeware(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         token = JWTHelper.decode(request.headers['Authorization'])
@@ -42,7 +42,7 @@ def apiOverview(request):
 
 @api_view(['GET'])
 @apiHandler
-@authMiddeware
+@tokenAuthMiddeware
 def getAllTodos(request):
    
     todos = TodoSerializer(Todo.objects.all(), many = True)
@@ -55,7 +55,7 @@ def getAllTodos(request):
 
 @api_view(['GET'])
 @apiHandler
-@authMiddeware
+@tokenAuthMiddeware
 def getTodoById(request, pk):
     todo = TodoSerializer(Todo.objects.get(id=pk))
     
@@ -68,7 +68,7 @@ def getTodoById(request, pk):
 
 @api_view(['POST'])
 @apiHandler
-@authMiddeware
+@tokenAuthMiddeware
 def createTodo(request):
     todo = TodoSerializer(data=request.data)
 
@@ -85,7 +85,7 @@ def createTodo(request):
 
 @api_view(['PUT'])
 @apiHandler
-@authMiddeware
+@tokenAuthMiddeware
 def updateTodo(request, pk):
     
     todo = TodoSerializer(Todo.objects.get(id=pk), data=request.data)
@@ -102,7 +102,7 @@ def updateTodo(request, pk):
 
 @api_view(['DELETE'])
 @apiHandler
-@authMiddeware
+@tokenAuthMiddeware
 def deleteTodo(request, pk):
     todo = Todo.objects.get(id=pk)
     serializedTodo = TodoSerializer(todo)
