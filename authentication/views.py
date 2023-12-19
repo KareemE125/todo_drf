@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view 
 from rest_framework.response import Response 
+from rest_framework.exceptions import AuthenticationFailed 
 
 from execptionHandling.apiHandler import apiHandler
 from execptionHandling.validationExecption import ValidationException
@@ -31,10 +32,9 @@ def login(request):
     email = request.data.get('email', None)
     password = request.data.get('password', None)
     user = User.objects.get(email=email)
-    print(password)
-    print(user.check_password(password))
+
     if not user.check_password(password):
-        raise ValidationException("Wrong Password")
+        raise AuthenticationFailed("Wrong Password")
     
     user = UserSerializer(user)
     

@@ -1,7 +1,7 @@
 from functools import wraps
 from rest_framework.response import Response
+from rest_framework.exceptions import AuthenticationFailed 
 
-from api.models import Todo
 from execptionHandling.validationExecption import ValidationException
 from execptionHandling.apiError import ApiError
 from django.core.exceptions import ObjectDoesNotExist
@@ -19,6 +19,10 @@ def apiHandler(func):
         except ValidationException as e:
             apiError = ApiError(e, e.statusMessage, "Validation Error", e.description)
             return Response(apiError.getJson(), status=e.statusCode)
+        
+        except AuthenticationFailed as e:
+            apiError = ApiError(e, "400 BAD REQUEST", "Validation Error")
+            return Response(apiError.getJson(), status=400)
             
         except Exception as e:
             apiError = ApiError(e, "500 Internal Server Error")
