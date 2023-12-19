@@ -1,48 +1,14 @@
-from http.client import BAD_REQUEST
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from functools import wraps
 
 from .models import Todo
 from .serializers import TodoSerializer
-from .exceptions import ValidationError
+from execptionHandling.validationExecption import ValidationException
+from execptionHandling.apiHandler import apiHandler
 # Create your views here.
 
 # Exception Handler Wrapper
-def apiHandler(func):
-    @wraps(func)
-    def wrapper(request, *args, **kwargs):
-        try:
-            return func(request, *args, **kwargs)
-        except Todo.DoesNotExist as e:
-            return Response({
-                    "Message": f"Todo with ID:'{kwargs.get('pk')}' is not exist", 
-                    "description": str(e.__doc__),
-                    "status": "404 NOT FOUND",
-                    "errors": list(e.args),
-                    "exception_origin": e.__class__.__name__,
-                }, status=404)
-            
-        except ValidationError as e:
-            return Response({
-                    "Message": "Validation Error", 
-                    "description": str(e.description),
-                    "status": e.statusMessage,
-                    "errors": list(e.args),
-                    "exception_origin": e.__class__.__name__,
-                }, status=e.statusCode)
-            
-        except Exception as e:
-            return Response({
-                    "Message": str(e), 
-                    "description": str(e.__doc__),
-                    "status": "500 Internal Server Error",
-                    "errors": list(e.args),
-                    "exception_origin": e.__class__.__name__,
-                }, status=500)
-    
-    return wrapper
+
     
         
 @api_view(['GET'])
@@ -93,7 +59,7 @@ def createTodo(request):
     todo = TodoSerializer(data=request.data)
 
     if not todo.is_valid():
-        raise ValidationError(todo.errors)
+        raise ValidationException(todo.errors)
 
     todo.save()
     data = {
@@ -109,7 +75,7 @@ def updateTodo(request, pk):
     
     todo = TodoSerializer(Todo.objects.get(id=pk), data=request.data)
     if not todo.is_valid():
-        raise BAD_REQUEST(todo.errors)
+        raise ValidationException(todo.errors)
 
     todo.save()
     data = {
