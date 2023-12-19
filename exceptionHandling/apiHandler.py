@@ -2,8 +2,8 @@ from functools import wraps
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed 
 
-from execptionHandling.validationExecption import ValidationException
-from execptionHandling.apiError import ApiError
+from exceptionHandling.validationExecption import ValidationException
+from exceptionHandling.apiError import ApiError
 from django.core.exceptions import ObjectDoesNotExist
 
 def apiHandler(func):

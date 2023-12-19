@@ -3,8 +3,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response 
 from rest_framework.exceptions import AuthenticationFailed 
 
-from execptionHandling.apiHandler import apiHandler
-from execptionHandling.validationExecption import ValidationException
+from exceptionHandling.apiHandler import apiHandler
+from exceptionHandling.validationExecption import ValidationException
 from .serializers import UserSerializer
 from.models import User
 # Create your views here.

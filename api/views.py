@@ -3,8 +3,8 @@ from rest_framework.response import Response
 
 from .models import Todo
 from .serializers import TodoSerializer
-from execptionHandling.validationExecption import ValidationException
-from execptionHandling.apiHandler import apiHandler
+from exceptionHandling.validationExecption import ValidationException
+from exceptionHandling.apiHandler import apiHandler
 # Create your views here.
 
 # Exception Handler Wrapper
